@@ -4,7 +4,7 @@ A sophisticated React-based visualization and comparison tool for a novel gradie
 
 # Manages to beat BFS in some mazes!
 
-[Comparison screenshot](https://img.shields.io/badge/Status-Complete-green)
+![screenshot of comparison](https://github.com/Darnix-a/warp-maze-solver/blob/main/Comparison%20screenshot.png)
 
 ## 🎯 Overview
 
@@ -247,4 +247,5 @@ The potential field U(x,y) combines:
 
 
 For questions, suggestions, or contributions, please open an issue or reach out!
+
 
