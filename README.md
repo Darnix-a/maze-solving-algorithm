@@ -58,6 +58,18 @@ npm run build
 npm run preview
 ```
 
+## CL Testing
+```bash
+# Run tests once
+npm test
+
+# Run tests and exit (non-watch mode)
+npm run test:run
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
 ## 🧪 Algorithm Details
 
 ### Novel Gradient Field Pathfinding
@@ -247,5 +259,6 @@ The potential field U(x,y) combines:
 
 
 For questions, suggestions, or contributions, please open an issue or reach out!
+
 
 
