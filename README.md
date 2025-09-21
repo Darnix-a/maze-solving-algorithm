@@ -2,7 +2,7 @@
 
 A sophisticated React-based visualization and comparison tool for a novel gradient field pathfinding algorithm with physics-inspired mechanics and guaranteed completeness fallback.
 
-# Manages to beat BFS in some mazes!
+# Manages to beat BFS in most mazes!
 
 ![screenshot of comparison](https://github.com/Darnix-a/warp-maze-solver/blob/main/Comparison%20screenshot.png)
 
@@ -259,6 +259,7 @@ The potential field U(x,y) combines:
 
 
 For questions, suggestions, or contributions, please open an issue or reach out!
+
 
 
 
