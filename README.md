@@ -2,6 +2,10 @@
 
 A sophisticated React-based visualization and comparison tool for a novel gradient field pathfinding algorithm with physics-inspired mechanics and guaranteed completeness fallback.
 
+# Manages to beat BFS in some mazes!
+
+[Comparison screenshot](https://img.shields.io/badge/Status-Complete-green)
+
 ![Novel Maze Pathfinding](https://img.shields.io/badge/Status-Complete-green)
 ![React](https://img.shields.io/badge/React-18.3.1-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6.2-blue)
@@ -246,34 +250,5 @@ The potential field U(x,y) combines:
 3. **Gradient Computation**: ∇U = (∂U/∂x, ∂U/∂y)
 4. **Momentum Update**: v_new = α * v_old + β * (-∇U)
 
-## 🙏 Acknowledgments
-
-- Inspired by classical potential field methods in robotics
-- BFS implementation follows standard graph traversal algorithms  
-- Maze generation algorithms based on established computer science literature
-- UI design influenced by modern data visualization principles
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## 🐛 Known Issues
-
-- Tailwind CSS v4 compatibility (some utility classes may not render)
-- Performance optimization needed for very large grids (>100×100)
-- Gradient field visualization could benefit from smoother interpolation
-
-## 🔮 Future Enhancements
-
-- [ ] A* algorithm comparison baseline  
-- [ ] 3D maze visualization
-- [ ] WebGL-accelerated gradient field rendering
-- [ ] Machine learning-based parameter optimization
-- [ ] Multi-objective pathfinding (shortest + smoothest)
-- [ ] Real-time collaborative maze editing
-
----
-
-**Built with ❤️ and ⚡ by the Novel Pathfinding Team**
 
 For questions, suggestions, or contributions, please open an issue or reach out!
