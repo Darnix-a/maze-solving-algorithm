@@ -35,10 +35,13 @@ interface CanvasLayers {
   overlay: HTMLCanvasElement
 }
 
-const CELL_SIZE = 20
+const MAX_CANVAS_WIDTH = 600  // Maximum width of canvas
+const MAX_CANVAS_HEIGHT = 600 // Maximum height of canvas
+const MIN_CELL_SIZE = 4       // Minimum cell size in pixels
+const MAX_CELL_SIZE = 25      // Maximum cell size in pixels
 const GRID_PADDING = 2
 const GRADIENT_ALPHA = 0.3
-const PATH_WIDTH = 3
+const PATH_WIDTH_RATIO = 0.15 // Path width as ratio of cell size
 
 export const GridCanvas: React.FC<GridCanvasProps> = ({
   className,
@@ -59,9 +62,25 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
   const grid = useAppStore(state => state.grid)
   const setGrid = useAppStore(state => state.setGrid)
   
+  // Calculate optimal cell size based on grid dimensions
+  const calculateCellSize = useCallback(() => {
+    // Calculate cell size that fits within max canvas dimensions
+    const maxCellWidth = Math.floor((MAX_CANVAS_WIDTH - GRID_PADDING * 2) / grid.width)
+    const maxCellHeight = Math.floor((MAX_CANVAS_HEIGHT - GRID_PADDING * 2) / grid.height)
+    
+    // Use the smaller of the two to ensure the grid fits in both dimensions
+    const optimalCellSize = Math.min(maxCellWidth, maxCellHeight)
+    
+    // Clamp between min and max cell size
+    return Math.max(MIN_CELL_SIZE, Math.min(MAX_CELL_SIZE, optimalCellSize))
+  }, [grid.width, grid.height])
+  
+  const cellSize = calculateCellSize()
+  const pathWidth = Math.max(1, Math.round(cellSize * PATH_WIDTH_RATIO))
+  
   // Canvas dimensions
-  const canvasWidth = grid.width * CELL_SIZE + GRID_PADDING * 2
-  const canvasHeight = grid.height * CELL_SIZE + GRID_PADDING * 2
+  const canvasWidth = grid.width * cellSize + GRID_PADDING * 2
+  const canvasHeight = grid.height * cellSize + GRID_PADDING * 2
 
   // Initialize canvas layers
   useEffect(() => {
@@ -101,20 +120,20 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
     const rect = layersRef.current.overlay?.getBoundingClientRect()
     if (!rect) return { x: 0, y: 0 }
     
-    const x = Math.floor((canvasX - rect.left - GRID_PADDING) / CELL_SIZE)
-    const y = Math.floor((canvasY - rect.top - GRID_PADDING) / CELL_SIZE)
+    const x = Math.floor((canvasX - rect.left - GRID_PADDING) / cellSize)
+    const y = Math.floor((canvasY - rect.top - GRID_PADDING) / cellSize)
     
     return {
       x: Math.max(0, Math.min(x, grid.width - 1)),
       y: Math.max(0, Math.min(y, grid.height - 1))
     }
-  }, [grid.width, grid.height])
+  }, [grid.width, grid.height, cellSize])
 
   // Convert grid coordinates to canvas coordinates
   const gridToCanvas = useCallback((point: Point): Point => ({
-    x: point.x * CELL_SIZE + GRID_PADDING + CELL_SIZE / 2,
-    y: point.y * CELL_SIZE + GRID_PADDING + CELL_SIZE / 2
-  }), [])
+    x: point.x * cellSize + GRID_PADDING + cellSize / 2,
+    y: point.y * cellSize + GRID_PADDING + cellSize / 2
+  }), [cellSize])
 
   // Render background grid
   const renderBackground = useCallback(() => {
@@ -134,7 +153,7 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
 
     // Vertical lines
     for (let x = 0; x <= grid.width; x++) {
-      const canvasX = x * CELL_SIZE + GRID_PADDING
+      const canvasX = x * cellSize + GRID_PADDING
       ctx.beginPath()
       ctx.moveTo(canvasX, GRID_PADDING)
       ctx.lineTo(canvasX, canvas.height - GRID_PADDING)
@@ -143,13 +162,13 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
 
     // Horizontal lines
     for (let y = 0; y <= grid.height; y++) {
-      const canvasY = y * CELL_SIZE + GRID_PADDING
+      const canvasY = y * cellSize + GRID_PADDING
       ctx.beginPath()
       ctx.moveTo(GRID_PADDING, canvasY)
       ctx.lineTo(canvas.width - GRID_PADDING, canvasY)
       ctx.stroke()
     }
-  }, [grid.width, grid.height])
+  }, [grid.width, grid.height, cellSize])
 
   // Render gradient field heatmap
   const renderGradientField = useCallback(() => {
@@ -193,16 +212,16 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
             
             ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${GRADIENT_ALPHA})`
             ctx.fillRect(
-              x * CELL_SIZE + GRID_PADDING,
-              y * CELL_SIZE + GRID_PADDING,
-              CELL_SIZE,
-              CELL_SIZE
+              x * cellSize + GRID_PADDING,
+              y * cellSize + GRID_PADDING,
+              cellSize,
+              cellSize
             )
           }
         }
       }
     }
-  }, [grid.height, grid.width, showGradientField, gradientField])
+  }, [grid.height, grid.width, showGradientField, gradientField, cellSize])
 
   // Render maze cells
   const renderCells = useCallback(() => {
@@ -216,8 +235,8 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
     for (let y = 0; y < grid.height; y++) {
       for (let x = 0; x < grid.width; x++) {
         const cell = grid.cells[y][x]
-        const cellX = x * CELL_SIZE + GRID_PADDING
-        const cellY = y * CELL_SIZE + GRID_PADDING
+        const cellX = x * cellSize + GRID_PADDING
+        const cellY = y * cellSize + GRID_PADDING
 
         // Base cell color
         let fillStyle = '#ffffff'
@@ -244,17 +263,17 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
         }
 
         ctx.fillStyle = fillStyle
-        ctx.fillRect(cellX, cellY, CELL_SIZE, CELL_SIZE)
+        ctx.fillRect(cellX, cellY, cellSize, cellSize)
 
         // Add border for special cells
         if (cell.type === CellType.Start || cell.type === CellType.Goal) {
           ctx.strokeStyle = cell.type === CellType.Start ? '#2f855a' : '#c53030'
-          ctx.lineWidth = 2
-          ctx.strokeRect(cellX + 1, cellY + 1, CELL_SIZE - 2, CELL_SIZE - 2)
+          ctx.lineWidth = Math.max(1, Math.round(cellSize / 10))
+          ctx.strokeRect(cellX + 1, cellY + 1, cellSize - 2, cellSize - 2)
         }
       }
     }
-  }, [grid, exploredCells, frontierCells])
+  }, [grid, exploredCells, frontierCells, cellSize])
 
   // Render path and overlay elements
   const renderOverlay = useCallback(() => {
@@ -267,7 +286,7 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
     // Render path
     if (pathCells.length > 1) {
       ctx.strokeStyle = '#3182ce'
-      ctx.lineWidth = PATH_WIDTH
+      ctx.lineWidth = pathWidth
       ctx.lineCap = 'round'
       ctx.lineJoin = 'round'
       
@@ -287,7 +306,7 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
     const startIcon = '🎯'
     const goalIcon = '🏁'
     
-    ctx.font = `${CELL_SIZE - 4}px Arial`
+    ctx.font = `${Math.max(8, cellSize - 4)}px Arial`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     
@@ -296,7 +315,7 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
     
     const goalPos = gridToCanvas(grid.goal)
     ctx.fillText(goalIcon, goalPos.x, goalPos.y)
-  }, [pathCells, grid.start, grid.goal, gridToCanvas])
+  }, [pathCells, grid.start, grid.goal, gridToCanvas, pathWidth, cellSize])
 
   // Re-render all layers when dependencies change
   useEffect(() => {
@@ -376,20 +395,29 @@ export const GridCanvas: React.FC<GridCanvasProps> = ({
   }, [canvasToGrid, grid, setGrid, onCellClick])
 
   return (
-    <div
-      ref={canvasRef}
-      className={`relative inline-block border border-gray-300 rounded-lg shadow-sm ${className}`}
-      style={{
-        width: canvasWidth,
-        height: canvasHeight,
-        cursor: isDragging ? 'grabbing' : 'pointer'
-      }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-      onContextMenu={handleRightClick}
-    />
+    <div className={`flex flex-col items-center ${className}`}>
+      {/* Grid size indicator */}
+      <div className="mb-2 text-sm text-gray-600">
+        Grid Size: {grid.width} × {grid.height} | Cell Size: {cellSize}px
+      </div>
+      
+      <div
+        ref={canvasRef}
+        className="relative border border-gray-300 rounded-lg shadow-sm"
+        style={{
+          width: canvasWidth,
+          height: canvasHeight,
+          cursor: isDragging ? 'grabbing' : 'pointer',
+          maxWidth: '100%',
+          maxHeight: '70vh'
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onContextMenu={handleRightClick}
+      />
+    </div>
   )
 }
 
