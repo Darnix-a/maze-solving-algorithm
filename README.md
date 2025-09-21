@@ -33,7 +33,7 @@ This project implements and visualizes a **novel pathfinding algorithm** that co
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/novel-maze-solver.git
+   git clone https://github.com/Darnix-a/novel-maze-solver.git
    cd novel-maze-solver
    ```
 
@@ -259,6 +259,7 @@ The potential field U(x,y) combines:
 
 
 For questions, suggestions, or contributions, please open an issue or reach out!
+
 
 
 
