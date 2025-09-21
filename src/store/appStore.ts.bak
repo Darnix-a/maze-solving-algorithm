@@ -1,0 +1,236 @@
+import { create } from 'zustand'
+import type { Grid, MazeType, PathfindingResult, PathfindingStep } from '@types/grid'
+import type { BenchmarkResult } from '@types/benchmarking'
+import { createEmptyGrid } from '@utils/gridUtils'
+import type { GradientFieldOptions } from '@solver/gradientFieldPathfinding'
+
+export enum AppMode {
+  EDIT = 'edit',
+  SOLVE = 'solve',
+}
+
+export enum PlayState {
+  STOPPED = 'stopped',
+  PLAYING = 'playing',
+  PAUSED = 'paused',
+}
+
+/**
+ * Maze generation configuration
+ */
+export interface MazeConfig {
+  width: number
+  height: number
+  type: string
+  seed: number
+  density?: number
+  [key: string]: any
+}
+
+/**
+ * Solver configuration combining all pathfinding options
+ */
+export interface SolverConfig extends GradientFieldOptions {
+  enableFallback: boolean
+}
+  Finished = 'finished',
+}
+
+export interface AlgorithmState {
+  isRunning: boolean
+  currentStep: number
+  totalSteps: number
+  result?: PathfindingResult
+  steps: PathfindingStep[]
+}
+
+export interface AppState {
+  // Grid and maze state
+  grid: Grid
+  seed: string
+  mazeType: MazeType
+  
+  // UI state
+  mode: AppMode
+  playState: PlayState
+  speed: number // 1-100 scale
+  
+  // Algorithm state
+  novelAlgorithm: AlgorithmState
+  bfsAlgorithm: AlgorithmState
+  
+  // Settings
+  showGradientField: boolean
+  enableRandomness: boolean
+  
+  // Actions
+  setGrid: (grid: Grid) => void
+  setSeed: (seed: string) => void
+  setMazeType: (type: MazeType) => void
+  setMode: (mode: AppMode) => void
+  setPlayState: (state: PlayState) => void
+  setSpeed: (speed: number) => void
+  setShowGradientField: (show: boolean) => void
+  setEnableRandomness: (enable: boolean) => void
+  
+  // Algorithm actions
+  startAlgorithm: () => void
+  pauseAlgorithm: () => void
+  stepAlgorithm: () => void
+  resetAlgorithm: () => void
+  updateNovelAlgorithm: (state: Partial<AlgorithmState>) => void
+  updateBfsAlgorithm: (state: Partial<AlgorithmState>) => void
+  
+  // Utility actions
+  resetGrid: () => void
+  generateNewSeed: () => void
+}
+
+const initialGrid = createEmptyGrid(25, 25)
+const initialSeed = Date.now().toString()
+
+export const useAppStore = create<AppState>((set, get) => ({
+  // Initial state
+  grid: initialGrid,
+  seed: initialSeed,
+  mazeType: MazeType.RecursiveBacktracker,
+  
+  mode: AppMode.Single,
+  playState: PlayState.Stopped,
+  speed: 50,
+  
+  novelAlgorithm: {
+    isRunning: false,
+    currentStep: 0,
+    totalSteps: 0,
+    steps: [],
+  },
+  
+  bfsAlgorithm: {
+    isRunning: false,
+    currentStep: 0,
+    totalSteps: 0,
+    steps: [],
+  },
+  
+  showGradientField: true,
+  enableRandomness: true,
+  
+  // Actions
+  setGrid: (grid: Grid) => {
+    set({ grid })
+  },
+  
+  setSeed: (seed: string) => {
+    setSeed(seed) // Set global RNG seed
+    set({ seed })
+  },
+  
+  setMazeType: (mazeType: MazeType) => {
+    set({ mazeType })
+  },
+  
+  setMode: (mode: AppMode) => {
+    set({ mode })
+  },
+  
+  setPlayState: (playState: PlayState) => {
+    set({ playState })
+    
+    // Update algorithm running states
+    const isRunning = playState === PlayState.Running
+    set(state => ({
+      novelAlgorithm: { ...state.novelAlgorithm, isRunning },
+      bfsAlgorithm: { ...state.bfsAlgorithm, isRunning },
+    }))
+  },
+  
+  setSpeed: (speed: number) => {
+    set({ speed: Math.max(1, Math.min(100, speed)) })
+  },
+  
+  setShowGradientField: (showGradientField: boolean) => {
+    set({ showGradientField })
+  },
+  
+  setEnableRandomness: (enableRandomness: boolean) => {
+    set({ enableRandomness })
+  },
+  
+  // Algorithm actions
+  startAlgorithm: () => {
+    const { playState } = get()
+    if (playState === PlayState.Stopped || playState === PlayState.Finished) {
+      // Reset algorithms
+      get().resetAlgorithm()
+    }
+    set({ playState: PlayState.Running })
+  },
+  
+  pauseAlgorithm: () => {
+    set({ playState: PlayState.Paused })
+  },
+  
+  stepAlgorithm: () => {
+    // This will be implemented when we have the actual algorithms
+    // For now, just advance the step counter
+    set(state => ({
+      novelAlgorithm: {
+        ...state.novelAlgorithm,
+        currentStep: Math.min(state.novelAlgorithm.currentStep + 1, state.novelAlgorithm.totalSteps),
+      },
+      bfsAlgorithm: {
+        ...state.bfsAlgorithm,
+        currentStep: Math.min(state.bfsAlgorithm.currentStep + 1, state.bfsAlgorithm.totalSteps),
+      },
+    }))
+  },
+  
+  resetAlgorithm: () => {
+    set(state => ({
+      playState: PlayState.Stopped,
+      novelAlgorithm: {
+        isRunning: false,
+        currentStep: 0,
+        totalSteps: 0,
+        result: undefined,
+        steps: [],
+      },
+      bfsAlgorithm: {
+        isRunning: false,
+        currentStep: 0,
+        totalSteps: 0,
+        result: undefined,
+        steps: [],
+      },
+    }))
+  },
+  
+  updateNovelAlgorithm: (updates: Partial<AlgorithmState>) => {
+    set(state => ({
+      novelAlgorithm: { ...state.novelAlgorithm, ...updates },
+    }))
+  },
+  
+  updateBfsAlgorithm: (updates: Partial<AlgorithmState>) => {
+    set(state => ({
+      bfsAlgorithm: { ...state.bfsAlgorithm, ...updates },
+    }))
+  },
+  
+  // Utility actions
+  resetGrid: () => {
+    const { grid } = get()
+    const newGrid = createEmptyGrid(grid.width, grid.height)
+    set({ grid: newGrid })
+    get().resetAlgorithm()
+  },
+  
+  generateNewSeed: () => {
+    const newSeed = Date.now().toString()
+    get().setSeed(newSeed)
+  },
+}))
+
+// Initialize the global RNG with the initial seed
+setSeed(initialSeed)

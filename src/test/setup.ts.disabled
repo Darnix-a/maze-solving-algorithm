@@ -1,0 +1,25 @@
+import '@testing-library/jest-dom'
+
+// Mock performance.memory for testing
+if (typeof performance !== 'undefined' && !performance.memory) {
+  (performance as any).memory = {
+    usedJSHeapSize: 0,
+    totalJSHeapSize: 0,
+    jsHeapSizeLimit: 0,
+  }
+}
+
+// Mock performance.now for consistent timing in tests
+let mockTime = 0
+const originalNow = performance.now
+global.mockPerformanceNow = (time?: number) => {
+  if (time !== undefined) {
+    mockTime = time
+  }
+  performance.now = vi.fn(() => mockTime)
+}
+
+global.resetPerformanceNow = () => {
+  performance.now = originalNow
+  mockTime = 0
+}

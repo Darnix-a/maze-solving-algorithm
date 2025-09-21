@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom maze visualization styles */
+@layer components {
+  .cell {
+    border: 1px solid #e5e7eb;
+    transition: background-color 150ms ease-in-out;
+  }
+  
+  .cell-empty {
+    background-color: #ffffff;
+  }
+  
+  .cell-wall {
+    background-color: #2d3748;
+  }
+  
+  .cell-start {
+    background-color: #38a169;
+    border-color: #059669;
+  }
+  
+  .cell-goal {
+    background-color: #e53e3e;
+    border-color: #dc2626;
+  }
+  
+  .cell-path {
+    background-color: #3182ce;
+  }
+  
+  .cell-explored {
+    background-color: #bee3f8;
+  }
+  
+  .cell-frontier {
+    background-color: #fbb6ce;
+  }
+  
+  .btn-primary {
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+    background-color: #2563eb;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .btn-primary:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+  }
+  
+  .btn-secondary {
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease-in-out;
+    background-color: #4b5563;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #374151;
+  }
+}
