@@ -6,9 +6,12 @@ A sophisticated React-based visualization and comparison tool for a novel gradie
 
 ![screenshot of comparison](https://github.com/Darnix-a/warp-maze-solver/blob/main/Comparison%20screenshot.png)
 Novel Gradient Field Pathfinding vs Classic BFS (25×25 Maze)
+
 ✅ Same optimal path length
+
 ⚡ 2× faster
 🧠 25% fewer explored cells
+
 
 ## 🎯 Overview
 
@@ -263,6 +266,7 @@ The potential field U(x,y) combines:
 
 
 For questions, suggestions, or contributions, please open an issue or reach out!
+
 
 
 
