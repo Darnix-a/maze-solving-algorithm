@@ -6,11 +6,6 @@ A sophisticated React-based visualization and comparison tool for a novel gradie
 
 [Comparison screenshot](https://img.shields.io/badge/Status-Complete-green)
 
-![Novel Maze Pathfinding](https://img.shields.io/badge/Status-Complete-green)
-![React](https://img.shields.io/badge/React-18.3.1-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.6.2-blue)
-![Tailwind](https://img.shields.io/badge/Tailwind-4.1.13-cyan)
-
 ## 🎯 Overview
 
 This project implements and visualizes a **novel pathfinding algorithm** that combines:
@@ -252,3 +247,4 @@ The potential field U(x,y) combines:
 
 
 For questions, suggestions, or contributions, please open an issue or reach out!
+
